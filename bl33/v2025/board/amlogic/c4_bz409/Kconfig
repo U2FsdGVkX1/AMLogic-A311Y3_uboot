@@ -1,0 +1,24 @@
+if TARGET_C4_BZ409
+
+config SYS_SOC
+	default "c4"
+
+config SYS_BOARD
+	default "c4_bz409"
+
+config SYS_VENDOR
+	default "amlogic"
+
+config SYS_CONFIG_NAME
+	default "c4_bz409"
+
+config DTB_BIND_KERNEL
+    bool "load dtb from boot part but not flash rsv"
+    default n
+
+config AML_REBOOT
+       bool "reboot cmd"
+       default y
+       help
+         support uboot reboot cmd
+endif

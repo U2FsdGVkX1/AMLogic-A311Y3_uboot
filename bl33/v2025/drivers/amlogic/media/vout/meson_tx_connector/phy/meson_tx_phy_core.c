@@ -1,0 +1,84 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
+//#include <linux/module.h>
+#include <init.h>
+//#include <linux/platform_device.h>
+#include <dm/of.h>
+#include <dm/device.h>
+#include <amlogic/media/vout/meson_tx_connector/phy/meson_tx_phy_core.h>
+
+int meson_tx_phy_init(struct meson_tx_phy *phy)
+{
+	if (phy && phy->ops->init)
+		phy->ops->init(phy);
+
+	pr_info("%s\n", __func__);
+	return 0;
+}
+
+int meson_tx_phy_exit(struct meson_tx_phy *phy)
+{
+	if (phy && phy->ops->exit)
+		phy->ops->exit(phy);
+
+	pr_info("%s\n", __func__);
+	return 0;
+}
+
+int meson_tx_phy_power_on(struct meson_tx_phy *phy)
+{
+	if (phy && phy->ops->power_on)
+		phy->ops->power_on(phy);
+
+	pr_info("%s\n", __func__);
+	return 0;
+}
+
+int meson_tx_phy_power_off(struct meson_tx_phy *phy)
+{
+	if (phy && phy->ops->power_off)
+		phy->ops->power_off(phy);
+
+	pr_info("%s\n", __func__);
+	return 0;
+}
+
+int meson_tx_phy_set_mode(struct meson_tx_phy *phy, enum meson_tx_phy_mode mode)
+{
+	if (phy && phy->ops->set_mode)
+		phy->ops->set_mode(phy, mode);
+
+	pr_info("%s\n", __func__);
+	return 0;
+}
+
+int meson_tx_phy_configure(struct meson_tx_phy *phy, struct meson_tx_phy_cfg_opts *opts)
+{
+	if (phy && phy->ops->configure)
+		phy->ops->configure(phy, opts);
+
+	return 0;
+}
+
+int meson_tx_phy_validate(struct meson_tx_phy *phy, enum meson_tx_phy_mode mode,
+			struct meson_tx_phy_cfg_opts *opts)
+{
+	if (phy && phy->ops->validate)
+		phy->ops->validate(phy, mode, opts);
+
+	pr_info("%s\n", __func__);
+	return 0;
+}
+
+int meson_tx_phy_calibrate(struct meson_tx_phy *phy)
+{
+	if (phy && phy->ops->calibrate)
+		phy->ops->calibrate(phy);
+
+	pr_info("%s\n", __func__);
+	return 0;
+}
+

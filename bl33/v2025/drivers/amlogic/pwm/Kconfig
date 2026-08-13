@@ -1,0 +1,16 @@
+#
+#Amlogic PWM control drivers
+#
+
+#config PWM_MESON
+#	bool "Amlogic Meson SoC PWM driver"
+#	default n
+#	help
+#	  Say Y here if you want to use the Meson PWM control.
+
+config PWM_MESON_TEE
+	bool "Amlogic Meson SoC PWM TEE driver"
+	depends on DM_PWM
+	default n
+	help
+	  Say Y here if you want to use the Meson PWM TEE control.

@@ -1,0 +1,16 @@
+config AMLOGIC_AMFC
+	tristate "Amlogic AMFC driver"
+	default n
+	help
+	  Amlogic AMFC driver
+
+	  Hardware compress/decompress module
+
+config AMFC_COMPRESS
+	bool "AMFC compress support"
+	depends on AMLOGIC_AMFC
+	default y
+	help
+	  Amlogic AMFC compress support
+	  Hardware compress/decompress module
+	  Some socs do not have enc in IP, set this config to N

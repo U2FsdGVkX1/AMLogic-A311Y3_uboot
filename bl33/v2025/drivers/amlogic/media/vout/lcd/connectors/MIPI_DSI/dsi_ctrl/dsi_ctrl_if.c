@@ -1,0 +1,202 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
+#include <amlogic/media/vout/lcd/aml_lcd.h>
+#include "../../../lcd_common.h"
+#include "../dsi_common.h"
+#include "dsi_ctrl.h"
+
+static struct dsi_ctrl_s *dsi_ctrl_op;
+
+void dsi_tx_ready(struct aml_lcd_drv_s *pdrv)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->tx_ready) {
+		LCDERR("[%d]: %s not supported\n", pdrv->index, __func__);
+		return;
+	}
+	dsi_ctrl_op->tx_ready(pdrv);
+}
+
+void dsi_disp_on(struct aml_lcd_drv_s *pdrv)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->disp_on) {
+		LCDERR("[%d]: %s not supported\n", pdrv->index, __func__);
+		return;
+	}
+	dsi_ctrl_op->disp_on(pdrv);
+}
+
+void dsi_disp_off(struct aml_lcd_drv_s *pdrv)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->disp_off) {
+		LCDERR("[%d]: %s not supported\n", pdrv->index, __func__);
+		return;
+	}
+	dsi_ctrl_op->disp_off(pdrv);
+}
+
+void dsi_tx_close(struct aml_lcd_drv_s *pdrv)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->tx_close) {
+		LCDERR("[%d]: %s not supported\n", pdrv->index, __func__);
+		return;
+	}
+	dsi_ctrl_op->tx_close(pdrv);
+}
+
+void dsi_fr_change_pre(struct aml_lcd_drv_s *pdrv, uint16_t fr100)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->fr_change_pre)
+		return;
+
+	dsi_ctrl_op->fr_change_pre(pdrv, fr100);
+}
+
+void dsi_fr_change_post(struct aml_lcd_drv_s *pdrv)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->fr_change_post)
+		return;
+
+	dsi_ctrl_op->fr_change_post(pdrv);
+}
+
+int dsi_DT_generic_short_write(struct aml_lcd_drv_s *pdrv, uint8_t port, struct dsi_cmd_req_s *req)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->DT_generic_short_write)
+		return -1;
+
+	return dsi_ctrl_op->DT_generic_short_write(pdrv, port, req);
+}
+
+int dsi_DT_generic_read(struct aml_lcd_drv_s *pdrv, uint8_t port, struct dsi_cmd_req_s *req)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->DT_generic_read)
+		return -1;
+
+	return dsi_ctrl_op->DT_generic_read(pdrv, port, req);
+}
+
+int dsi_DT_DCS_short_write(struct aml_lcd_drv_s *pdrv, uint8_t port, struct dsi_cmd_req_s *req)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->DT_DCS_short_write)
+		return -1;
+
+	return dsi_ctrl_op->DT_DCS_short_write(pdrv, port, req);
+}
+
+int dsi_DT_DCS_read(struct aml_lcd_drv_s *pdrv, uint8_t port, struct dsi_cmd_req_s *req)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->DT_DCS_read)
+		return -1;
+
+	return dsi_ctrl_op->DT_DCS_read(pdrv, port, req);
+}
+
+int dsi_DT_set_max_return_pkt_size(struct aml_lcd_drv_s *pdrv, uint8_t port,
+					struct dsi_cmd_req_s *req)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->DT_set_max_return_pkt_size)
+		return -1;
+
+	return dsi_ctrl_op->DT_set_max_return_pkt_size(pdrv, port, req);
+}
+
+int dsi_DT_generic_long_write(struct aml_lcd_drv_s *pdrv, uint8_t port, struct dsi_cmd_req_s *req)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->DT_generic_long_write)
+		return -1;
+
+	return dsi_ctrl_op->DT_generic_long_write(pdrv, port, req);
+}
+
+int dsi_DT_DCS_long_write(struct aml_lcd_drv_s *pdrv, uint8_t port, struct dsi_cmd_req_s *req)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->DT_DCS_long_write)
+		return -1;
+
+	return dsi_ctrl_op->DT_DCS_long_write(pdrv, port, req);
+}
+
+void dsi_DT_sink_shut_down(struct aml_lcd_drv_s *pdrv, uint8_t port)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->DT_sink_shut_down)
+		return;
+
+	dsi_ctrl_op->DT_sink_shut_down(pdrv, port);
+}
+
+void dsi_DT_sink_turn_on(struct aml_lcd_drv_s *pdrv, uint8_t port)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->DT_sink_turn_on)
+		return;
+
+	dsi_ctrl_op->DT_sink_turn_on(pdrv, port);
+}
+
+void dsi_op_mode_switch(struct aml_lcd_drv_s *pdrv, uint8_t port, uint8_t op_mode)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->op_mode_switch)
+		return;
+
+	dsi_ctrl_op->op_mode_switch(pdrv, port, op_mode);
+}
+
+void dsi_dphy_reset(struct aml_lcd_drv_s *pdrv, uint8_t port)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->dphy_reset)
+		return;
+
+	dsi_ctrl_op->dphy_reset(pdrv, port);
+}
+
+void dsi_host_reset(struct aml_lcd_drv_s *pdrv, uint8_t port)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->host_reset)
+		return;
+
+	dsi_ctrl_op->host_reset(pdrv, port);
+}
+
+void dsi_top_set_irq_meas(struct aml_lcd_drv_s *pdrv, uint8_t port,
+			uint8_t vsync_meas_en, uint8_t edpite_meas_en, uint16_t intr_mask_setting)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->set_dsi_irq_meas)
+		return;
+
+	dsi_ctrl_op->set_dsi_irq_meas(pdrv, port,
+			vsync_meas_en, edpite_meas_en, intr_mask_setting);
+}
+
+void dsi_top_read_intr_sta(struct aml_lcd_drv_s *pdrv, uint8_t port,
+			struct dsi_intr_meas_sta_s *intr_data)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->dsi_irq_intr_process)
+		return;
+
+	dsi_ctrl_op->dsi_irq_intr_process(pdrv, port, intr_data);
+}
+
+void dsi_top_read_meas_sta(struct aml_lcd_drv_s *pdrv, uint8_t port,
+			struct dsi_intr_meas_sta_s *intr_data)
+{
+	if (!dsi_ctrl_op || !dsi_ctrl_op->dsi_irq_meas_process)
+		return;
+
+	dsi_ctrl_op->dsi_irq_meas_process(pdrv, port, intr_data);
+}
+
+void lcd_dsi_if_bind(struct aml_lcd_drv_s *pdrv)
+{
+	switch (pdrv->data->chip_type) {
+	case LCD_CHIP_MAX:
+		dsi_ctrl_op = dsi_bind_v2(pdrv);
+		break;
+	case LCD_CHIP_S6:
+	case LCD_CHIP_A9:
+	default:
+		dsi_ctrl_op = dsi_bind_v1(pdrv);
+		break;
+	}
+}

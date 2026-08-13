@@ -1,0 +1,54 @@
+config CLK_MESON_C4
+	bool "Enable clock support for Amlogic C4"
+	depends on CLK && ARCH_MESON
+	default MESON_C4
+	help
+	  Enable clock support for the Amlogic C4 SoC family, such as
+	  the SKT
+
+config CLK_MESON_A9
+	bool "Enable clock support for Amlogic A9"
+	depends on CLK && ARCH_MESON
+	default MESON_A9
+	help
+	  Enable clock support for the Amlogic A9 SoC family, such as
+	  the SKT
+
+config CLK_MESON_T6D
+	bool "Enable clock support for Amlogic T6D"
+	depends on CLK && ARCH_MESON
+	default MESON_T6D
+	help
+	  Enable clock support for the Amlogic T6D SoC family
+
+config CLK_MESON_T6W
+	bool "Enable clock support for Amlogic T6W"
+	depends on CLK && ARCH_MESON
+	default MESON_T6W
+	help
+	  Enable clock support for the Amlogic T6W SoC family, such as
+	  the SKT
+
+config CLK_MESON_S7
+	bool "Enable clock support for Amlogic S7"
+	depends on CLK && ARCH_MESON && CLK_CCF
+	default MESON_S7
+	help
+	  Enable clock support for the Amlogic S7 SoC family, such as
+	  the SKT
+
+config CLK_MESON_X1
+	bool "Enable clock support for Amlogic X1"
+	depends on CLK && ARCH_MESON
+	default MESON_X1
+	help
+	  Enable clock support for the Amlogic X1 SoC family, such as
+	  the SKT
+
+config CLK_MESON_C5
+	bool "Enable clock support for Amlogic C5"
+	depends on CLK && ARCH_MESON
+	default MESON_C5
+	help
+	  Enable clock support for the Amlogic C5 SoC family, such as
+	  the SKT

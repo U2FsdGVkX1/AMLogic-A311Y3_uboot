@@ -1,0 +1,31 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
+#ifndef _AML_LCD_BL_H
+#define _AML_LCD_BL_H
+#include <amlogic/media/vout/lcd/aml_lcd.h>
+
+void bl_config_print(struct aml_bl_drv_s *bdrv);
+int aml_bl_load_config(struct aml_bl_drv_s *bdrv, char *dt_addr);
+int aml_bl_reload_config(struct aml_bl_drv_s *bdrv, char *dt_addr, unsigned int load_id);
+
+void bl_set_pwm_gpio_check(struct aml_bl_drv_s *bdrv, struct bl_pwm_config_s *bl_pwm);
+
+enum bl_pwm_port_e bl_pwm_str_to_num(const char *str);
+char *bl_pwm_num_to_str(unsigned int num);
+int bl_str_to_pwm_method(const char *str, int def_val);
+void bl_set_pwm(struct bl_pwm_config_s *bl_pwm);
+void bl_pwm_set_level(struct aml_bl_drv_s *bdrv, struct bl_pwm_config_s *bl_pwm, int level);
+void bl_pwm_en(struct bl_pwm_config_s *bl_pwm, int flag);
+void bl_pwm_config_init(struct bl_pwm_config_s *bl_pwm);
+void bl_pwm_reg_print(struct bl_pwm_config_s *bl_pwm);
+void bl_pwm_vs_reg_dump(void);
+
+int bl_bri_level_input_scale(struct aml_bl_drv_s *bdrv, int level);
+int bl_bri_level_output_scale(struct aml_bl_drv_s *bdrv, int level);
+unsigned int bl_pwm_duty_input_scale(struct aml_bl_drv_s *bdrv, unsigned int duty);
+unsigned int bl_pwm_duty_output_scale(struct aml_bl_drv_s *bdrv, unsigned int duty);
+
+#endif

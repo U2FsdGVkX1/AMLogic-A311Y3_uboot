@@ -1,0 +1,778 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
+#include <dt-bindings/amlogic/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/amlogic/pwm/pwm.h>
+#include <dt-bindings/amlogic/pwm/meson.h>
+#include <dt-bindings/amlogic/clock/a9-clkc.h>
+#include <dt-bindings/amlogic/input/meson_rc.h>
+
+/ {
+	interrupt-parent = <&gic>;
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/* 16 MiB reserved for Hardware ROM Firmware */
+		hwrom_reserved: hwrom@0 {
+			reg = <0x0 0x0 0x0 0x1000000>;
+			no-map;
+		};
+
+		/* 2 MiB reserved for ARM Trusted Firmware (BL31) */
+		secmon_reserved: secmon@10000000 {
+			reg = <0x0 0x10000000 0x0 0x200000>;
+			no-map;
+		};
+
+		linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x0 0xbc00000>;
+			alignment = <0x0 0x400000>;
+			linux,cma-default;
+		};
+	};
+
+	cpus {
+		#address-cells = <0x2>;
+		#size-cells = <0x0>;
+
+		cpu0: cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53", "arm,armv8";
+			reg = <0x0 0x0>;
+			enable-method = "psci";
+			next-level-cache = <&l2>;
+			clocks = <&scpi_dvfs 0>;
+		};
+
+		cpu1: cpu@1 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53", "arm,armv8";
+			reg = <0x0 0x1>;
+			enable-method = "psci";
+			next-level-cache = <&l2>;
+			clocks = <&scpi_dvfs 0>;
+		};
+
+		cpu2: cpu@2 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53", "arm,armv8";
+			reg = <0x0 0x2>;
+			enable-method = "psci";
+			next-level-cache = <&l2>;
+			clocks = <&scpi_dvfs 0>;
+		};
+
+		cpu3: cpu@3 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53", "arm,armv8";
+			reg = <0x0 0x3>;
+			enable-method = "psci";
+			next-level-cache = <&l2>;
+			clocks = <&scpi_dvfs 0>;
+		};
+
+		l2: l2-cache0 {
+			compatible = "cache";
+		};
+	};
+
+	arm-pmu {
+		compatible = "arm,cortex-a53-pmu";
+		interrupts = <GIC_SPI 137 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 138 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 153 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 154 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-affinity = <&cpu0>, <&cpu1>, <&cpu2>, <&cpu3>;
+	};
+
+	psci {
+		compatible = "arm,psci-0.2";
+		method = "smc";
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts = <GIC_PPI 13
+			(GIC_CPU_MASK_RAW(0xff) | IRQ_TYPE_LEVEL_LOW)>,
+			     <GIC_PPI 14
+			(GIC_CPU_MASK_RAW(0xff) | IRQ_TYPE_LEVEL_LOW)>,
+			     <GIC_PPI 11
+			(GIC_CPU_MASK_RAW(0xff) | IRQ_TYPE_LEVEL_LOW)>,
+			     <GIC_PPI 10
+			(GIC_CPU_MASK_RAW(0xff) | IRQ_TYPE_LEVEL_LOW)>;
+	};
+
+	xtal: xtal {
+		compatible = "fixed-clock";
+		clock-frequency = <24000000>;
+		clock-output-names = "xtal";
+		#clock-cells = <0>;
+	};
+
+	firmware {
+		sm: secure-monitor {
+			compatible = "amlogic,meson-gx-sm", "amlogic,meson-gxbb-sm";
+		};
+	};
+
+	efuse: efuse {
+		compatible = "amlogic,meson-sc2-efuse", "amlogic,meson-sc2-efuse";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+	};
+
+	scpi {
+		compatible = "amlogic,meson-gxbb-scpi", "arm,scpi-pre-1.0";
+		mboxes = <&mailbox 1 &mailbox 2>;
+		shmem = <&cpu_scp_lpri &cpu_scp_hpri>;
+
+		scpi_clocks: clocks {
+			compatible = "arm,scpi-clocks";
+
+			scpi_dvfs: scpi_clocks@0 {
+				compatible = "arm,scpi-dvfs-clocks";
+				#clock-cells = <1>;
+				clock-indices = <0>;
+				clock-output-names = "vcpu";
+			};
+		};
+
+		scpi_sensors: sensors {
+			compatible = "amlogic,meson-gxbb-scpi-sensors", "arm,scpi-sensors";
+			#thermal-sensor-cells = <1>;
+		};
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		gic: interrupt-controller@2c001000 {
+			compatible = "arm,gic-400";
+			reg = <0x0 0xffc01000 0 0x1000>,
+			      <0x0 0xffc02000 0 0x2000>,
+			      <0x0 0xffc04000 0 0x2000>,
+			      <0x0 0xffc06000 0 0x2000>;
+			interrupt-controller;
+			interrupts = <GIC_PPI 9
+				(GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_HIGH)>;
+			#interrupt-cells = <3>;
+			#address-cells = <0>;
+		};
+
+		sram: sram@f7000000 {
+			compatible = "amlogic,meson-sc2-sram", "amlogic,meson-sc2-sram", "mmio-sram";
+			reg = <0x0 0xf7000000 0x0 0x48000>;
+
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges = <0 0x0 0xf7000000 0x48000>;
+
+			cpu_scp_lpri: scp-shmem@0 {
+				compatible = "amlogic,meson-gx-scp-shmem", "amlogic,meson-gxbb-scp-shmem";
+				reg = <0x47000 0x400>;
+			};
+
+			cpu_scp_hpri: scp-shmem@200 {
+				compatible = "amlogic,meson-gx-scp-shmem", "amlogic,meson-gxbb-scp-shmem";
+				reg = <0x47400 0x400>;
+			};
+		};
+
+		cbus: cbus@ffa10000 {
+			compatible = "simple-bus";
+			reg = <0x0 0xffa10000 0x0 0x2F000>;
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges = <0x0 0x0 0x0 0xffa10000 0x0 0x2F000>;
+
+			uart_a: serial@8000 {
+				compatible = "amlogic,meson-uart";
+				reg = <0x0 0x8000 0x0 0x18>;
+				clocks = <&xtal>;
+				clock-names = "baud";
+				status = "disabled";
+			};
+
+			uart_b: serial@e000 {
+				compatible = "amlogic,meson-uart";
+				reg = <0x0 0xe000 0x0 0x18>;
+				clocks = <&xtal>;
+				clock-names = "baud";
+				status = "disabled";
+			};
+
+			reset: reset-controller@1000 {
+				compatible = "amlogic,meson-gx-reset", "amlogic,meson-gxbb-reset";
+				reg = <0x0 0x01000 0x0 0x1000>;
+				#reset-cells = <1>;
+			};
+
+			uart_c: serial@22000 {
+				compatible = "amlogic,meson-uart";
+				reg = <0x0 0x22000 0x0 0x18>;
+				interrupts = <GIC_SPI 93 IRQ_TYPE_EDGE_RISING>;
+				clocks = <&xtal>;
+				status = "disabled";
+			};
+
+			jtag {
+				compatible = "amlogic, jtag";
+				status = "okay";
+				select = "disable"; /* disable/jtag-a/jtag-b */
+				pinctrl-names="jtag_a_pins", "jtag_b_pins";
+				pinctrl-0=<&jtag_a_pins>;
+				pinctrl-1=<&jtag_b_pins>;
+			};
+		};
+
+		ir: meson-ir {
+			compatible = "amlogic, meson-ir";
+			reg = <0x0 0xffa14080 0x0 0x58>, /*Multi-format IR controller*/
+			      <0x0 0xffa14000 0x0 0x58>; /*Legacy IR controller*/
+			protocol = <REMOTE_TYPE_NEC>;
+			status = "disabled";
+		};
+
+		periphs: periphs@ff634000 {
+			compatible = "simple-bus";
+			reg = <0x0 0xff634000 0x0 0x2000>;
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges = <0x0 0x0 0x0 0xff634000 0x0 0x2000>;
+
+			hwrng: rng {
+				compatible = "amlogic,meson-rng";
+				reg = <0x0 0x0 0x0 0x4>;
+			};
+		};
+
+		hiubus: hiubus@ff63c000 {
+			compatible = "simple-bus";
+			reg = <0x0 0xff63c000 0x0 0x2000>;
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges = <0x0 0x0 0x0 0xff63c000 0x0 0x2000>;
+
+			mailbox: mailbox@404 {
+				compatible = "amlogic,meson-gx-mhu", "amlogic,meson-gxbb-mhu";
+				reg = <0 0x404 0 0x4c>;
+				interrupts = <0 208 IRQ_TYPE_EDGE_RISING>,
+					     <0 209 IRQ_TYPE_EDGE_RISING>,
+					     <0 210 IRQ_TYPE_EDGE_RISING>;
+				#mbox-cells = <1>;
+			};
+		};
+
+		clkc: clock-controller@0 {
+			compatible = "amlogic,a9-clkc";
+			#clock-cells = <1>;
+			reg = <0x0 0xfe000000 0x0 0x8380>;
+			clocks = <&xtal>;
+			clock-names = "xtal";
+		};
+
+		pwm_a: pwm@ffa10000 {
+			compatible = "amlogic,meson-pwm-a9";
+			reg = <0x0 0xffa10000 0x0 0x24>,
+			<0x0 0xffa0001c 0x0 0x4>;
+			#pwm-cells = <3>;
+			tee_id = <0>;
+			status = "disabled";
+		};
+
+		pwm_b: pwm@ffa10200 {
+			compatible = "amlogic,meson-pwm-a9";
+			reg = <0x0 0xffa10200 0x0 0x24>,
+			<0x0 0xffa00020 0x0 0x4>;
+			#pwm-cells = <3>;
+			tee_id = <1>;
+			status = "disabled";
+		};
+
+		pwm_c: pwm@ffa10400 {
+			compatible = "amlogic,meson-pwm-a9";
+			reg = <0x0  0xffa10400 0x0 0x24>,
+			<0x0 0xffa00024 0x0 0x4>;
+			#pwm-cells = <3>;
+			tee_id = <2>;
+			status = "disabled";
+		};
+
+		pwm_d: pwm@ffa10600 {
+			compatible = "amlogic,meson-pwm-a9";
+			reg = <0x0 0xffa10600 0x0 0x24>,
+			<0x0 0xffa00028 0x0 0x4>;
+			#pwm-cells = <3>;
+			tee_id = <3>;
+			status = "disabled";
+		};
+
+		pwm_e: pwm@ffa10800 {
+			compatible = "amlogic,meson-pwm-a9";
+			reg = <0x0 0xffa10800 0x0 0x24>,
+			<0x0 0xffa0002c 0x0 0x4>;
+			#pwm-cells = <3>;
+			tee_id = <4>;
+			status = "disabled";
+		};
+
+		pwm_f: pwm@ffa10a00 {
+			compatible = "amlogic,meson-pwm-a9";
+			reg = <0x0 0xffa10a00 0x0 0x24>,
+			<0x0 0xffa00030 0x0 0x4>;
+			#pwm-cells = <3>;
+			tee_id = <5>;
+			status = "disabled";
+		};
+
+		pwm_g: pwm@ffa10c00 {
+			compatible = "amlogic,meson-pwm-a9";
+			reg = <0x0 0xffa10c00 0x0 0x24>,
+			<0x0 0xffa00034 0x0 0x4>;
+			#pwm-cells = <3>;
+			tee_id = <6>;
+			status = "disabled";
+		};
+
+		pwm_h: pwm@fe058000 {
+			compatible = "amlogic,meson-pwm-a9";
+			reg = <0x0 0xfe058000 0x0 0x24>,
+			<0x0 0xfe0002bc 0x0 0x4>;
+			#pwm-cells = <3>;
+			tee_id = <7>;
+			status = "disabled";
+		};
+
+		pwm_i: pwm@fe058200 {
+			compatible = "amlogic,meson-pwm-a9";
+			reg = <0x0 0xfe058200 0x0 0x24>,
+			<0x0 0xfe0002c0 0x0 0x4>;
+			#pwm-cells = <3>;
+			tee_id = <8>;
+			status = "disabled";
+		};
+
+		pwm_j: pwm@fe058400 {
+			compatible = "amlogic,meson-pwm-a9";
+			reg = <0x0 0xfe058400 0x0 0x24>,
+			<0x0 0xfe0002c4 0x0 0x4>;
+			#pwm-cells = <3>;
+			tee_id = <9>;
+			status = "disabled";
+		};
+
+		pwm_k: pwm@fe058600 {
+			compatible = "amlogic,meson-pwm-a9";
+			reg = <0x0 0xfe058600 0x0 0x24>,
+			<0x0 0xfe0002c8 0x0 0x4>;
+			#pwm-cells = <3>;
+			tee_id = <10>;
+			status = "disabled";
+		};
+
+		pwm_l: pwm@fe058800 {
+			compatible = "amlogic,meson-pwm-a9";
+			reg = <0x0 0xfe058800 0x0 0x24>,
+			<0x0 0xfe0002cc 0x0 0x4>;
+			#pwm-cells = <3>;
+			tee_id = <11>;
+			status = "disabled";
+		};
+
+		pwm_m: pwm@fe058a00 {
+			compatible = "amlogic,meson-pwm-a9";
+			reg = <0x0 0xfe058a00 0x0 0x24>,
+			<0x0 0xfe0002d0 0x0 0x4>;
+			#pwm-cells = <3>;
+			tee_id = <12>;
+			status = "disabled";
+		};
+
+		pwm_n: pwm@fe058c00 {
+			compatible = "amlogic,meson-pwm-a9";
+			reg = <0x0 0xfe058c00 0x0 0x24>,
+			<0x0 0xfe0002d4 0x0 0x4>;
+			#pwm-cells = <3>;
+			tee_id = <13>;
+			status = "disabled";
+		};
+
+		i2c0: i2c@0xffa0e000 {
+			compatible = "amlogic,meson-i2c-v2-1";
+			reg = <0x0 0xffa0e000 0x0 0x3c>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i2c1: i2c@0xffa0e100 {
+			compatible = "amlogic,meson-i2c-v2-1";
+			reg = <0x0 0xffa0e100 0x0 0x3c>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i2c2: i2c@0xffa0e200 {
+			compatible = "amlogic,meson-i2c-v2-1";
+			reg = <0x0 0xffa0e200 0x0 0x3c>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i2c3: i2c@0xffa0e300 {
+			compatible = "amlogic,meson-i2c-v2-1";
+			reg = <0x0 0xffa0e300 0x0 0x3c>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i2c4: i2c@0xfe3a4400 {
+			compatible = "amlogic,meson-i2c-v2-1";
+			reg = <0x0 0xfe3a4400 0x0 0x3c>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i2c5: i2c@0xfe3a4500 {
+			compatible = "amlogic,meson-i2c-v2-1";
+			reg = <0x0 0xfe3a4500 0x0 0x3c>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i2c6: i2c@0xfe3a4600 {
+			compatible = "amlogic,meson-i2c-v2-1";
+			reg = <0x0 0xfe3a4600 0x0 0x3c>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i2c7: i2c@0xfe3a4700 {
+			compatible = "amlogic,meson-i2c-v2-1";
+			reg = <0x0 0xfe3a4700 0x0 0x3c>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i2c8: i2c@0xfe3a4800 {
+			compatible = "amlogic,meson-i2c-v2-1";
+			reg = <0x0 0xfe3a4800 0x0 0x3c>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i3c0: i3c@0xffa22000 {
+			compatible = "silvaco,i3c-master-meson";
+			reg = <0x0 0xffa22000 0x0 0xFFF>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		i3c1: i3c@0xfe3a7000 {
+			compatible = "silvaco,i3c-master-meson";
+			reg = <0x0 0xfe3a7000 0x0 0xFFF>;
+			#address-cells = <3>;
+			#size-cells = <0>;
+			clocks = <&clkc CLKID_SYS_CLK>,
+					 <&clkc CLKID_I3C>,
+					 <&clkc CLKID_I3C_DIV>;
+			clock-names = "pclk", "fclk", "div";
+			assigned-clocks =  <&clkc CLKID_I3C_SEL>;
+			assigned-clock-parents =  <&clkc CLKID_FCLK_DIV5>;
+			status = "disabled";
+		};
+
+		spisg_c: spi@fe050000 {
+			compatible = "amlogic,meson-a4-spicc";
+			reg = <0x0 0xfe050000 0x0 0x38>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		spisg_e: spi@fe050100 {
+			compatible = "amlogic,meson-a4-spicc";
+			reg = <0x0 0xfe050100 0x0 0x38>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		spisg_f: spi@fe050200 {
+			compatible = "amlogic,meson-a4-spicc";
+			reg = <0x0 0xfe050200 0x0 0x38>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		spi_nfc: spi@0xfe08d000 {
+			compatible = "amlogic,spi_nfc";
+			status = "disabled";
+			reg = <0x0 0xfe08d000 0x0 0x80>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			spi-flash@0 {
+				compatible = "jedec,spi-nor";
+				reg = <0>;
+				spi-max-frequency = <20000000>;
+				spi-tx-bus-width = <4>;
+				spi-rx-bus-width = <4>;
+				status = "disabled";
+			};
+			spi-nand@1 {
+				compatible = "spi-nand";
+				reg = <1>;
+				spi-max-frequency = <20000000>;
+				spi-tx-bus-width = <4>;
+				spi-rx-bus-width = <4>;
+				status = "disabled";
+			};
+		};
+
+		ethmac: ethernet@fe498000 {
+			compatible = "amlogic,t7-eth-dwmac";
+			reg = <0x0 0xfe498000 0x0 0x12ec
+			       0x0 0xfe494000 0x0 0x2c>;
+			reg-names = "eth_base", "eth_top";
+
+			mdio0: mdio {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "snps,dwmac-mdio";
+			};
+ 		};
+
+		saradc: adc {
+			compatible = "amlogic,saradc";
+			reg = <0x00 0xfe026000 0x00 0x84>;
+			amlogic,clock-frequency = <3000000>;
+			amlogic,test-channel = <7>;
+			amlogic,fifo-data-width = <16>;
+			amlogic,out-data-width = <10>;
+			/* Filter control */
+			amlogic,reg7-init = <0x00000c11>;
+			amlogic,reg8-init = <0x0280614d>;
+			/* Delay configure */
+			amlogic,reg3-init = <0x10a02403>;
+			amlogic,reg4-init = <0x021dd080>;
+			/* Set aux and external vref */
+			amlogic,reg9-init = <0x0000f0f0>;
+			amlogic,reg10-init = <0x70503010>;
+			amlogic,reg11-init = <0xf0d0b090>;
+			status = "disabled";
+		};
+
+		nand: nfc@fe08d000 {
+			compatible = "amlogic,meson-nfc";
+			reg = <0x0 0xfe08d000 0x0 0x200>;
+			interrupts = <GIC_SPI 34 IRQ_TYPE_EDGE_RISING>;
+			status = "disabled";
+			clk_reg = <0 0xfe08c000>;
+			spi_cfg = <0 0xfe08d040>;
+		};
+
+		apb: apb@fe000000 {
+			compatible = "simple-bus";
+			reg = <0x0 0xfe000000 0x0 0x1000000>;
+			#address-cells = <2>;
+			#size-cells = <2>;
+			ranges = <0x0 0x0 0x0 0xfe000000 0x0 0x1000000>;
+
+			watchdog {
+				compatible = "amlogic,meson-sc2-wdt";
+				reg = <0x0 0x2100 0x0 0x10>;
+				clocks = <&xtal>;
+				clock-names = "wdt-clk";
+			};
+
+			sd_emmc_a: sdio {
+				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
+				reg = <0x0 0x88000 0x0 0x800>;
+				interrupts = <GIC_SPI 85 IRQ_TYPE_EDGE_RISING>;
+				status = "disabled";
+				pinname = "sdio";
+			};
+
+			sd_emmc_b: sd {
+				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
+				reg = <0x0 0x8a000 0x0 0x800>;
+				interrupts = <GIC_SPI 86 IRQ_TYPE_EDGE_RISING>;
+				status = "disabled";
+				pinname = "sd";
+			};
+
+			sd_emmc_c: emmc {
+				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
+				reg = <0x0 0x8c000 0x0 0x800>;
+				interrupts = <GIC_SPI 87 IRQ_TYPE_EDGE_RISING>;
+				status = "disabled";
+				pinname = "emmc";
+			};
+		};
+
+		dwc30: dwc30@f3b00000 {
+			compatible = "dwc3-xhci";
+			status = "disable";
+			reg = <0x0 0xf3b00000 0x0 0x100000>;
+			phys = <&usb20_phy_v2>, <&usb30_phy_v2>;
+			phy-names = "usb20-phy", "usb30-phy";
+		};
+
+		usb20_phy_v2: usb20phy@fe488000 {
+			compatible = "amlogic, amlogic-new-usb2-v2";
+			status = "disable";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			phy-version = <2>;
+			reg = <0x0 0xfe488000 0x0 0x80
+			       0x0 0xFE002000 0x0 0x100
+			       0x0 0xfe48e000 0x0 0x2000>;
+			dwc2_a_reg = <0xf3b00000>;
+			#phy-cells = <0>;
+		};
+
+		usb30_phy_v2: usb30phy@fe488080 {
+			compatible = "amlogic, amlogic-new-usb3-v2";
+			status = "disable";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			phy-version = <3>;
+			reg = <0x0 0xfe488080 0x0 0x20>;
+			phy-reg = <0xfe48e000>;
+			phy-reg-size = <0x2000>;
+			usb2-phy-reg = <0xfe488000>;
+			usb2-phy-reg-size = <0x80>;
+			#phy-cells = <0>;
+		};
+
+		dwc31: dwc31@f3d00000 {
+			compatible = "dwc3-xhci";
+			status = "disable";
+			reg = <0x0 0xf3d00000 0x0 0x100000>;
+			phys = <&usb21_phy_v2>, <&usb31_phy_v2>;
+			phy-names = "usb21-phy", "usb31-phy";
+		};
+
+		usb21_phy_v2: usb21phy@fe4cc000 {
+			compatible = "amlogic, amlogic-new-usb2-v2";
+			status = "disable";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			phy-version = <2>;
+			reg = <0x0 0xfe4cc000 0x0 0x80
+			       0x0 0xFE002000 0x0 0x100
+			       0x0 0xfe4ce000 0x0 0x2000>;
+			dwc2_a_reg = <0xf3d00000>;
+			#phy-cells = <0>;
+		};
+
+		usb31_phy_v2: usb31phy@fe4cc080 {
+			compatible = "amlogic, amlogic-new-usb3-v2";
+			status = "disable";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			phy-version = <3>;
+			reg = <0x0 0xfe4cc080 0x0 0x20>;
+			phy-reg = <0xfe4ce000>;
+			phy-reg-size = <0x2000>;
+			usb2-phy-reg = <0xfe4cc000>;
+			usb2-phy-reg-size = <0x80>;
+			#phy-cells = <0>;
+		};
+
+		dwc32: dwc32@f3e00000 {
+			compatible = "dwc3-xhci";
+			status = "disable";
+			reg = <0x0 0xf3e00000 0x0 0x100000>;
+			phys = <&usb22_phy_v2>, <&usb32_phy_v2>;
+			phy-names = "usb22-phy", "usb32-phy";
+		};
+
+		usb22_phy_v2: usb22phy@fe4ac000 {
+			compatible = "amlogic, amlogic-new-usb2-v2";
+			status = "disable";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			phy-version = <2>;
+			reg = <0x0 0xfe4ac000 0x0 0x80
+			       0x0 0xFE002000 0x0 0x100
+			       0x0 0xfe4ae000 0x0 0x2000>;
+			dwc2_a_reg = <0xf3e00000>;
+			#phy-cells = <0>;
+		};
+
+		usb32_phy_v2: usb32phy@fe4ac080 {
+			compatible = "amlogic, amlogic-new-usb3-v2";
+			status = "disable";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			phy-version = <3>;
+			reg = <0x0 0xfe4ac080 0x0 0x20>;
+			phy-reg = <0xfe4ae000>;
+			phy-reg-size = <0x2000>;
+			usb2-phy-reg = <0xfe4ac000>;
+			usb2-phy-reg-size = <0x80>;
+			#phy-cells = <0>;
+		};
+
+		dwc33: dwc33@f3f00000 {
+			compatible = "dwc3-xhci";
+			status = "disable";
+			reg = <0x0 0xf3f00000 0x0 0x100000>;
+			phys = <&usb23_phy_v2>, <&usb33_phy_v2>;
+			phy-names = "usb23-phy", "usb33-phy";
+		};
+
+		usb23_phy_v2: usb23phy@fe4a4000 {
+			compatible = "amlogic, amlogic-new-usb2-v2";
+			status = "disable";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			phy-version = <2>;
+			reg = <0x0 0xfe4a4000 0x0 0x80
+			       0x0 0xFE002000 0x0 0x100
+			       0x0 0xfe4a6000 0x0 0x2000>;
+			dwc2_a_reg = <0xf3f00000>;
+			#phy-cells = <0>;
+		};
+
+		usb33_phy_v2: usb33phy@fe4a4080 {
+			compatible = "amlogic, amlogic-new-usb3-v2";
+			status = "disable";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			phy-version = <3>;
+			reg = <0x0 0xfe4a4080 0x0 0x20>;
+			phy-reg = <0xfe4a6000>;
+			phy-reg-size = <0x2000>;
+			usb2-phy-reg = <0xfe4a4000>;
+			usb2-phy-reg-size = <0x80>;
+			#phy-cells = <0>;
+		};
+	};
+};

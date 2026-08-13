@@ -1,0 +1,17 @@
+config EFUSE
+	bool "AML EFUSE Support"
+	help
+	  Enable support for the Amlogic EFUSE controller
+
+config EFUSE_MRK_GET_CHECKNUM
+	bool "efuse get MRK checksum support"
+	default y
+	help
+	  Enable command for get MRK checksum
+
+
+config EFUSE_AUDIO_ID_CHECKNUM
+	bool "efuse get customer audio id checksum support"
+	default y
+	help
+	  Enable command for get customer audio id checksum

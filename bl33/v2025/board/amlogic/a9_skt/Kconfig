@@ -1,0 +1,29 @@
+if TARGET_A9_SKT
+
+config SYS_SOC
+	default "a9"
+
+config SYS_BOARD
+	default "a9_skt"
+
+config SYS_CONFIG_NAME
+	default "a9_skt"
+
+config DTB_BIND_KERNEL
+    bool "load dtb from boot part but not flash rsv"
+    default n
+config BL30_SELECT
+	string "a9 BL30 board config"
+		default "a9_pxp"
+config CMD_PLLTEST
+        bool "support plltest command"
+        default n
+		help
+			support plltest command
+
+config AML_REBOOT
+		bool "reboot cmd"
+		default y
+		help
+			support uboot reboot cmd
+endif

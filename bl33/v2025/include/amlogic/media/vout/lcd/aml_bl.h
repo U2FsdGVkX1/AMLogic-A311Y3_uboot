@@ -1,0 +1,152 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
+/*
+ * Copyright (c) 2019 Amlogic, Inc. All rights reserved.
+ */
+
+#ifndef INC_AML_LCD_BL_H
+#define INC_AML_LCD_BL_H
+
+#include <amlogic/media/vout/lcd/lcd_vout.h>
+
+#define BLPR(fmt, args...)     printf("bl: "fmt"", ## args)
+#define BLERR(fmt, args...)    printf("bl: error: "fmt"", ## args)
+
+#define BL_LEVEL_FULL_SCALE    4095
+#define BL_PWM_DUTY_FULL_SCALE 4095
+
+#define PWM_MAP_RESCALING      0
+#define PWM_MAP_NORMALIZATION  1
+
+enum bl_ctrl_method_e {
+	BL_CTRL_GPIO = 0,
+	BL_CTRL_PWM,
+	BL_CTRL_PWM_COMBO,
+	BL_CTRL_PWM_ARRAY,
+	BL_CTRL_LOCAL_DIMMING,
+	BL_CTRL_EXTERN,
+	BL_CTRL_MAX,
+};
+
+enum bl_pwm_method_e {
+	BL_PWM_NEGATIVE = 0,
+	BL_PWM_POSITIVE,
+	BL_PWM_METHOD_MAX,
+};
+
+enum bl_pwm_port_e {
+	BL_PWM_A = 0,
+	BL_PWM_B,
+	BL_PWM_C,
+	BL_PWM_D,
+	BL_PWM_E,
+	BL_PWM_F,
+	BL_PWM_G,
+	BL_PWM_H,
+	BL_PWM_I,
+	BL_PWM_J,
+	BL_PWM_AO_A = 0x50,
+	BL_PWM_AO_B,
+	BL_PWM_AO_C,
+	BL_PWM_AO_D,
+	BL_PWM_AO_E,
+	BL_PWM_AO_F,
+	BL_PWM_AO_G,
+	BL_PWM_AO_H,
+	BL_PWM_VS = 0xa0,
+	BL_PWM_MAX = 0xff,
+};
+
+enum bl_off_policy_e {
+	BL_OFF_POLICY_NONE = 0,
+	BL_OFF_POLICY_ALWAYS,
+	BL_OFF_POLICY_ONCE,
+	BL_OFF_POLICY_MAX,
+};
+
+#define XTAL_FREQ_HZ		(24*1000*1000) /* 24M in HZ */
+#define XTAL_HALF_FREQ_HZ	(24*1000*500)  /* 24M/2 in HZ */
+
+#define BL_FREQ_DEFAULT		1000 /* unit: HZ */
+#define BL_FREQ_VS_DEFAULT	2    /* multiple 2 of vfreq */
+
+#define BL_GPIO_NUM_MAX		6
+#define BL_INDEX_INVALID        0xff
+
+struct bl_pwm_config_s {
+	unsigned int index;
+	unsigned int drv_index;
+	enum bl_pwm_method_e pwm_method;
+	enum bl_pwm_port_e pwm_port;
+	int bl_level_max;
+	int bl_level_min;
+
+	unsigned int pwm_freq; /* pwm_vs: 1~4(vfreq), pwm: freq(unit: Hz) */
+	unsigned int pwm_duty; /* 12bit */
+	unsigned int pwm_duty_dft; /* 12bit */
+	unsigned int pwm_duty_save; /* 12bit */
+	unsigned int pwm_duty_max; /* 12bit */
+	unsigned int pwm_duty_min; /* 12bit */
+	unsigned int pwm_phase;
+
+	unsigned int pwm_cnt; /* internal used for pwm control */
+	unsigned int pwm_pre_div; /* internal used for pwm control */
+	unsigned int pwm_value; /* internal used for pwm control */
+	unsigned int pwm_lo;
+	unsigned int pwm_hi;
+
+	unsigned int pwm_gpio;
+	unsigned int pwm_gpio_off;
+	unsigned int pinmux_flag;
+};
+
+#define BL_NAME_MAX    30
+struct bl_config_s {
+	unsigned int index;
+	char name[BL_NAME_MAX];
+	int level_default;
+	int level_min;
+	int level_max;
+
+	int level_in_scale;
+	unsigned int pwm_duty_in_scale;
+	unsigned int pwm_mapping_method;
+
+	enum bl_ctrl_method_e method;
+	unsigned int en_gpio;
+	unsigned int en_gpio_on;
+	unsigned int en_gpio_off;
+	unsigned short power_on_delay;
+	unsigned short power_off_delay;
+	unsigned int en_sequence_reverse;
+
+	struct bl_pwm_config_s *bl_pwm;
+	struct bl_pwm_config_s *bl_pwm_combo0;
+	struct bl_pwm_config_s *bl_pwm_combo1;
+	struct bl_pwm_config_s *bl_pwm_array[4];
+	unsigned int pwm_on_delay;
+	unsigned int pwm_off_delay;
+	unsigned int bl_hold_on;
+
+	char gpio_name[BL_GPIO_NUM_MAX][LCD_CPU_GPIO_NAME_MAX];
+	int extern_index;
+};
+
+struct aml_bl_drv_s {
+	unsigned int index;
+	unsigned char config_load;
+	unsigned int state;
+	int level;
+	int bl_off_policy;
+	int factory_bl_on_delay;
+
+	struct bl_config_s config;
+	struct aml_lcd_data_s *data;
+	struct udevice *udev;
+	unsigned int pinmux_flag;
+};
+
+struct aml_bl_drv_s *aml_bl_get_driver(int index);
+void bl_driver_enable(int index);
+void bl_driver_disable(int index);
+
+#endif

@@ -1,0 +1,66 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2025 Amlogic, Inc. All rights reserved.
+ */
+
+/dts-v1/;
+
+#include "amlogic/meson-c5-skt.dtsi"
+#include "amlogic/meson-c5_skt-panel.dtsi"
+
+/ {
+	compatible =  "amlogic,c5-txxx", "amlogic,meson-c5";
+	model = "Amlogic Meson c5 skt Board";
+};
+
+/* This UART is brought out to the DB9 connector */
+&uart_a {
+	status = "okay";
+};
+
+&uart_b {
+	status = "disabled";
+};
+
+&saradc {
+	status = "okay";
+};
+
+&i2c0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c0_ao_pins1>;
+	clock-frequency = <400000>; /* default 100k */
+};
+
+&i2c2 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c2_ao_pins1>;
+	clock-frequency = <100000>; /* default 100k */
+};
+
+&i2c3 {
+	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c3_pins2>;
+	clock-frequency = <100000>; /* default 100k */
+};
+
+&ethmac {
+	status = "okay";
+	pinctrl-names = "external_eth_rgmii_pins";
+	pinctrl-0 = <&external_eth_rgmii_pins>;
+	internal_phy = <0>;
+	mc_val = <0x1621>;
+};
+
+&pinctrl_periphs {
+	bl_pwm_off_pins:bl_pwm_off_pin {
+		mux {
+			groups = "GPIOH_5";
+			function = "gpio_periphs";
+			output-high;
+		};
+	};
+}; /* end of pinctrl_periphs */

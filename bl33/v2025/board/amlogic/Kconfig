@@ -1,0 +1,795 @@
+# function list
+
+config PXP_EMULATOR
+	bool "Amlogic Pxp emulater flag"
+	help
+		Support PXP environment
+
+config AMLOGIC_MODIFY
+        bool "Amlogic modify flag"
+        help
+                Support Amlogic to modify
+
+config AMLOGIC_RAMDUMP
+	bool "Amlogic ramdump tools for kernel panic debugging"
+	default n
+	help
+		Enable Amlogic RAM dump support used for kernel panic debugging.
+		This option provides tools and hooks to capture memory contents,
+		register states, and crash-related information when a kernel panic
+		occurs, which helps post-mortem debugging.
+		It is mainly used in Amlogic platform BSP for crash analysis.
+
+config PXP_DDR
+	bool "Amlogic Pxp ddr flag"
+	help
+		Support PXP ddr environment
+		If this config is open, then DDR is running under PXP/PTM mode,
+		Which is simulation by software. The behavior is not same
+		as real SOC. This config must be closed if running on real
+		chips.
+
+config PXP_STO
+	bool "Amlogic Pxp storage flag"
+	help
+		Support PxP storage preload mode.
+		When it's enabled, data were load to ram background.
+		When it's disabled, data were load to the storage media
+		module which makes the routine works much more like the
+		silicon chip.
+
+config PXP_SCS
+	bool "Amlogic Pxp scs flag"
+	help
+		Support PXP scs environment
+		If this option is open, then SCS check may be disabled for
+		fast PXP bring up. This config should be closed if SCS feature
+		is ready.
+
+config BOOT_FASTBOOT
+        bool "Bootloader start with fastboot flow"
+	default n
+        help
+          Enable bootloader to start using the fastboot boot flow.
+          When enabled, the bootloader will enter fastboot mode during boot
+          instead of the normal boot process.
+
+choice
+        prompt "Fastboot boot Medium"
+	depends on BOOT_FASTBOOT
+
+config FASTBOOT_MEDIUM_SPINOR
+        bool "spinor"
+        help
+                Select spinor as the fastboot medium.
+
+config FASTBOOT_MEDIUM_EMMC
+        bool "emmc"
+        help
+                Select eMMC as the fastboot medium.
+endchoice
+
+
+config AML_KASLR_SEED
+	bool "Amlogic random kaslr seed"
+	default y
+	help
+		set up random kalsr seed for kernel boot.
+
+config BYPASS_AOCPU
+    bool "Amlogic bypass aocpu flag"
+    help
+        Support bypass aocpu environment
+        If this option is open, aocpu is bypass. This config should
+		be closed when aopuc is ready.
+
+config BUILD_UNSIGN
+	bool "Amlogic pxp unsign flag"
+	help
+		Support PXP no signed environment
+		When PXP bring up this option is open. This config should be
+		closed when signature is ready.
+
+config AML_SIGNED_UBOOT
+	bool "Amlogic signed bootloader"
+	help
+		Enable signed bootloader
+		For Amlogic boards
+
+config AML_UPDATE_PDVFS
+	bool "Enable AML PDVFS Update"
+	default n
+	help
+		Update pdvfs Voltage and frequency tables to determine based on other qualifiers
+		For Amlogic boards
+
+config DDR_FASTBOOT
+	bool "Amlogic ddr fastboot"
+	default n
+	help
+		Support Amlogic ddr fastboot
+
+config AML_CS_SIGNING_SCHEME
+	string "Amlogic chipset signing scheme"
+	default "rsa-mldsa" if MESON_S6 || MESON_A9
+	default "rsa"
+	help
+		Signed bootloader chipset signing scheme
+
+config AML_DV_SIGNING_SCHEME
+	string "Amlogic device-vendor signing scheme"
+	default "rsa-mldsa" if MESON_S6 || MESON_A9
+	default "rsa"
+	help
+		Signed bootloader device vendor signing scheme
+
+config BOARD_PACKAGE_NAME
+	string "rtos sdk name"
+	default ""
+	help
+		This config can help to select bl30 board name.
+
+config KALLSYMS
+	bool "Support call stack dump when crash"
+	default y
+	help
+		This config can help to print call stack like linux kernel panic
+		when crash. It's very useful for debug crash issues.
+
+config PXP_AOCPU
+	bool "Amlogic Pxp aocpu flag"
+	help
+		Support PXP aocpu bring up
+		if this option is enable, then BL30 will be executed on AOCPU
+
+config AML_BL33_COMPRESS_ENABLE
+	bool "Amlogic U-boot compress"
+	help
+		Support U-boot compress function
+
+config AML_CRYPTO_AES
+	bool "Amlogic Crypto AES for Secure Boot"
+	help
+		"Support AES for Amlogic Secure Boot"
+
+config AML_SECURE_BOOT_V3
+	bool "Amlogic SecureBoot V3"
+	help
+		"Support Amlogic SecureBoot V3 version"
+
+config FIP_IMG_SUPPORT
+	bool "Amlogic FIP IMG format file"
+	help
+		"Support Amlogic FIP IMG format"
+
+config AML_SECURE_UBOOT
+	bool "Amlogic SecureBoot function"
+	help
+		"Support Amlogic SecureBoot function"
+
+config SECURE_POWER_CONTROL
+	bool "Amlogic device MEM_PD control"
+
+config AML_CRYPTO_UBOOT
+	bool "Encrypt Amlogic U-boot"
+	help
+		"Support U-boot encrypt function"
+
+config UBOOT_RUN_IN_SRAM
+	bool "Amlogic U-boot run in sram"
+	default n
+	help
+		"Support Amlogic U-boot run in SRAM"
+
+config AML_TSENSOR
+	bool "Amlogic Temp Sensor"
+	help
+		"Support Amlogic Thermal Sensor"
+
+config AML_TSENSOR_COOL
+	bool "Amlogic HIGH TEMP COOL"
+	depends on AML_TSENSOR
+	help
+		"Support Amlogic High Temperature Cool"
+
+config AML_OSCRING
+	bool "Amlogic OSCRING MSR"
+	help
+		"Support Amlogic chip oscring msr"
+
+config AMLOGIC_TIME_PROFILE
+	bool "profile for uboot time"
+	default y
+	help
+		catch and dump function/commands which cost long time
+		This option should be done with env "setenv time_profile 1"
+
+config SPLIT_BOOT
+	bool "Suppot split uboot boot"
+	default n
+	help
+		Adapt small volume emmc boot
+		Load bl40/bl31/bl32 from spl, load bl30/bl33 from tpl
+
+config SYS_VENDOR
+	string "Vendor name"
+	default "amlogic"
+	help
+	  This option contains information about board name.
+	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD> will
+	  be used.
+
+config BYPASS_BL32
+	bool "BYPASS_BL32"
+	default n
+	help
+		"Support bl32 function"
+
+config AB_BOOT
+	bool "Enable a/b boot"
+	default n
+	help
+		"Support uboot a/b boot"
+
+config BL32_FASTBOOT
+	bool "Enable bl32 fastboot"
+	default n
+	help
+		"Support bl32 fastboot"
+
+config BL32_128M
+	bool "Enable bl32 128m size"
+	default n
+	help
+		"Support bl32 128m size"
+
+config RAMDISK_MEM_ADDR
+	hex
+	default 0x0a000000
+	help
+		"select ramdisk load address"
+
+config DTB_MEM_ADDR
+	hex
+	default 0x01000000
+	help
+		"select Device tree load address"
+
+config MULTI_DTB
+	bool "Amlogic Multi-DT function"
+	default n
+	help
+		"Support Multi-DT function"
+
+config KEY_PRESERVE
+	bool "Amlogic Key Preserve"
+	default n
+	help
+		"Support Amlogic Key Preserve for iotrace debug"
+
+config DDR_FULL_FW
+	bool "full ddr fw support for soc using advanced boot loader"
+	default n
+	help
+		Support full ddr fw for soc using advanced boot loader as
+		bl2, such as sc2/t7/s4/t3/p1/s5....
+
+config AMLOGIC_ETH
+        bool "Amlogic ethernet modify flag"
+        help
+                Support Amlogic to modify for ethernet
+
+config SECURE_POWER_CONTROL
+	bool "Amlogic device MEM_PD control"
+	help
+		Support Amlogic secure power control
+
+config AMLOGIC_EMMC
+	bool "Amlogic emmc/sdcard modify flag"
+	help
+		Support Amlogic to modify for
+		emmc/sdcard
+
+config AMPK
+	bool "Amlogic AMPK and efuse_obj set_enc"
+	default n
+	help
+		"Embed vendor public key into ACS for AMPK
+		and enables efuse_obj set_enc command
+		"
+
+config AVB2_UBOOT_SHA256
+	bool "Use Uboot SHA256 in AVB2"
+	default y
+	help
+		"Set y to use Uboot SHA256 in AVB2
+		or n to use AVB2 internal SHA256
+		"
+
+choice
+	prompt "BL2E size"
+	default BL2E_64K
+
+config BL2E_64K
+	bool "64KB"
+	help
+		This config enable 64KB select of BL2E size
+		BL2E size must be one of BL2E_64K/BL2E_96K/BL2E_128K/
+		BL2E_256K/BL2E_1024K
+
+config BL2E_96K
+	bool "96KB"
+	help
+		This config enable 96KB select of BL2E size
+		BL2E size must be one of BL2E_64K/BL2E_96K/BL2E_128K/
+		BL2E_256K/BL2E_1024K
+
+config BL2E_128K
+	bool "128KB"
+	help
+		This config enable 128KB select of BL2E size
+		BL2E size must be one of BL2E_64K/BL2E_96K/BL2E_128K/
+		BL2E_256K/BL2E_1024K
+
+config BL2E_256K
+	bool "256KB"
+	help
+		This config enable 256KB select of BL2E size
+		BL2E size must be one of BL2E_64K/BL2E_96K/BL2E_128K/
+		BL2E_256K/BL2E_1024K
+
+config BL2E_1024K
+	bool "1024KB"
+	help
+		This config enable 1024KB select of BL2E size
+		BL2E size must be one of BL2E_64K/BL2E_96K/BL2E_128K/
+		BL2E_256K/BL2E_1024K
+
+endchoice
+
+config BL2E_PAYLOAD_SIZE
+	int
+	default   65536 if BL2E_64K
+	default   98304 if BL2E_96K
+	default  131072 if BL2E_128K
+	default  262144 if BL2E_256K
+	default 1048576 if BL2E_1024K
+
+config ZIRCON_BOOT_IMAGE
+	bool "Build Zircon compatible boot image"
+	default n
+
+# T6D series boards
+
+if MESON_T6D
+
+config SYS_SOC
+	default "t6d"
+
+config DDRFW_TYPE
+	string "t6d DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+	string "T6D CHIPSET NAME"
+	default "t950d5"
+
+config CHIPSET_VARIANT
+	string "T6D CHIPSET VARIANT"
+	default ""
+
+config AMLOGIC_KEY_TYPE
+	string "T6D AMLOGIC KEY TYPE"
+	default "dev-keys"
+
+choice
+	prompt "T6D Board"
+
+config T6D_BR301
+	bool "T6D_BR301"
+	select TARGET_T6D_BR301
+	help
+		Select T6D BR301 config
+endchoice
+
+config TARGET_T6D_BR301
+	bool "T6D BR301 board"
+	depends on T6D_BR301
+endif
+
+if MESON_T6W
+
+config SYS_SOC
+	default "t6w"
+
+config DDRFW_TYPE
+	string "t6w DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+	string "t6w CHIPSET NAME"
+	default ""
+
+config CHIPSET_VARIANT
+	string "t6w CHIPSET VARIANT"
+	default ""
+
+config AMLOGIC_KEY_TYPE
+	string "t6w AMLOGIC KEY TYPE"
+	default ""
+
+choice
+	prompt "t6w Board"
+
+config T6W_SKT
+	bool "T6W_SKT"
+	select TARGET_T6W_SKT
+	help
+		Select T6W SKT(XXXX) config
+
+endchoice
+
+config TARGET_T6W_SKT
+	bool "T6W SKT board"
+	depends on T6W_SKT
+endif
+
+if MESON_S7
+
+config SYS_SOC
+	default "s7"
+
+config DDRFW_TYPE
+	string "s7 DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+	string "s7 CHIPSET NAME"
+	default "s905y5"
+
+config CHIPSET_VARIANT
+	string "s7 CHIPSET VARIANT"
+	default ""
+
+config AMLOGIC_KEY_TYPE
+	string "s7 AMLOGIC KEY TYPE"
+	default "dev-keys"
+
+choice
+	prompt "s7 Board"
+
+config S7_BH201
+	bool "S7_BH201"
+	select TARGET_S7_BH201
+	help
+		Select S7 BH201 config
+
+endchoice
+
+config TARGET_S7_BH201
+	bool "S7 BH201 board"
+	depends on S7_BH201
+endif
+
+if MESON_X1
+
+config SYS_SOC
+	default "x1"
+
+config DDRFW_TYPE
+	string "x1 DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+	string "x1 CHIPSET NAME"
+	default "n611x1"
+
+config CHIPSET_VARIANT
+	string "x1 CHIPSET VARIANT"
+	default ""
+
+config AMLOGIC_KEY_TYPE
+	string "x1 AMLOGIC KEY TYPE"
+	default "dev-keys"
+
+choice
+	prompt "x1 Board"
+
+config X1_SKT
+	bool "X1_SKT"
+	select TARGET_X1_SKT
+	help
+		Select X1 SKT config
+
+config X1_BV409
+	bool "X1_BV409"
+	select TARGET_X1_BV409
+	help
+		Select X1 BV409 config
+
+endchoice
+
+config TARGET_X1_SKT
+	bool "X1 SKT board"
+	depends on X1_SKT
+
+config TARGET_X1_BV409
+	bool "X1 BV409 board"
+	depends on X1_BV409
+endif
+
+if MESON_C4
+
+config SYS_SOC
+	default "c4"
+
+config DDRFW_TYPE
+	string "c4 DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+	string "C4 CHIPSET NAME"
+	default "c302x2"
+
+config CHIPSET_VARIANT
+	string "C4 CHIPSET VARIANT"
+	default ""
+
+config AMLOGIC_KEY_TYPE
+	string "C4 AMLOGIC KEY TYPE"
+	default "dev-keys"
+
+choice
+	prompt "C4 Board"
+
+config C4_SKT
+	bool "C4_SKT"
+	select TARGET_C4_SKT
+	help
+		Select C4 SKT(XXXX) config
+
+config C4_BZ400
+	bool "C4_BZ400"
+	select TARGET_C4_BZ400
+	help
+		Select C4 BZ400 config
+
+config C4_BZ401
+	bool "C4_BZ401"
+	select TARGET_C4_BZ401
+	help
+		Select C4 BZ400 config
+
+config C4_BZ404
+	bool "C4_BZ404"
+	select TARGET_C4_BZ404
+	help
+		Select C4 BZ404 config
+
+config C4_BZ409
+	bool "C4_BZ409"
+	select TARGET_C4_BZ409
+	help
+		Select C4 BZ409 config
+
+endchoice
+
+config TARGET_C4_SKT
+	bool "C4 SKT board"
+	depends on C4_SKT
+
+config TARGET_C4_BZ400
+	bool "C4 BZ400 board"
+	depends on C4_BZ400
+
+config TARGET_C4_BZ401
+	bool "C4 BZ400 board"
+	depends on C4_BZ401
+
+config TARGET_C4_BZ404
+	bool "C4 BZ404 board"
+	depends on C4_BZ404
+
+config TARGET_C4_BZ409
+	bool "C4 BZ409 board"
+	depends on C4_BZ409
+endif
+
+if MESON_A9
+
+config SYS_SOC
+	default "a9"
+
+config DDRFW_TYPE
+	string "a9 DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+	string "a9 CHIPSET NAME"
+	default "a311y3"
+
+config CHIPSET_VARIANT
+	string "a9 CHIPSET VARIANT"
+	default ""
+
+config AMLOGIC_KEY_TYPE
+	string "a9 AMLOGIC KEY TYPE"
+	default "dev-keys"
+
+choice
+	prompt "A9 Board"
+
+config A9_SKT
+	bool "A9_SKT"
+	select TARGET_A9_SKT
+	help
+		Select A9 SKT(XXXX) config
+
+config A9_BY401
+	bool "A9_BY401"
+	select TARGET_A9_BY401
+	help
+		Select A9 BY401(XXXX) config
+
+config A9_BY408
+	bool "A9_BY408"
+	select TARGET_A9_BY408
+	help
+		Select A9 BY408(XXXX) config
+
+config A9_BY409
+	bool "A9_BY409"
+	select TARGET_A9_BY409
+	help
+		Select A9 BY409(XXXX) config
+
+config A9_BY401_VENUS
+	bool "A9 Venus"
+	select TARGET_A9_BY401_VENUS
+	help
+	  Select A9 Venus config
+endchoice
+
+config TARGET_A9_SKT
+	bool "A9 SKT board"
+	depends on A9_SKT
+
+config TARGET_A9_BY401
+	bool "A9 BY401 board"
+	depends on A9_BY401
+
+config TARGET_A9_BY408
+	bool "A9 BY408 board"
+	depends on A9_BY408
+
+config TARGET_A9_BY409
+	bool "A9 BY409 board"
+	depends on A9_BY409
+
+config TARGET_A9_BY401_VENUS
+	bool "A9 Venus board"
+	depends on A9_BY401_VENUS
+endif
+
+config BUILD_DEBIAN_SYSTEM
+	bool "Config flag of building debian system"
+	help
+		Config flag of building debian system.
+
+if MESON_C5
+
+config SYS_SOC
+	default "c5"
+
+config DDRFW_TYPE
+	string "x1 DDR FW Type"
+	default "ddr4"
+
+config CHIPSET_NAME
+	string "c5 CHIPSET NAME"
+	default "a123x"
+
+config CHIPSET_VARIANT
+	string "c5 CHIPSET VARIANT"
+	default ""
+
+config AMLOGIC_KEY_TYPE
+	string "c5 AMLOGIC KEY TYPE"
+	default "dev-keys"
+
+choice
+	prompt "c5 Board"
+
+config C5_SKT
+	bool "C5_SKT"
+	select TARGET_C5_SKT
+	help
+		Select C5 SKT config
+
+config C5_CB400
+	bool "C5_CB400"
+	select TARGET_C5_CB400
+	help
+		Select C5 CB400 config
+
+config C5_CB401
+	bool "C5_CB401"
+	select TARGET_C5_CB401
+	help
+		Select C5 CB401 config
+
+config C5_CB409
+	bool "C5_CB409"
+	select TARGET_C5_CB409
+	help
+		Select C5 CB409 config
+
+config C5_CB410
+	bool "C5_CB410"
+	select TARGET_C5_CB410
+	help
+		Select C5 CB410 config
+endchoice
+
+config TARGET_C5_SKT
+	bool "C5 SKT board"
+	depends on C5_SKT
+
+config TARGET_C5_CB400
+	bool "C5 CB400 board"
+	depends on C5_CB400
+
+config TARGET_C5_CB401
+	bool "C5 CB401 board"
+	depends on C5_CB401
+
+config TARGET_C5_CB409
+	bool "C5 CB409 board"
+	depends on C5_CB409
+
+config TARGET_C5_CB410
+	bool "C5 CB410 board"
+	depends on C5_CB410
+endif
+
+# Amlogic boards
+
+source "board/amlogic/t6d_br301/Kconfig"
+
+source "board/amlogic/t6w_skt/Kconfig"
+
+source "board/amlogic/s7_bh201/Kconfig"
+
+source "board/amlogic/x1_skt/Kconfig"
+
+source "board/amlogic/x1_bv409/Kconfig"
+
+source "board/amlogic/c4_skt/Kconfig"
+
+source "board/amlogic/c4_bz400/Kconfig"
+
+source "board/amlogic/c4_bz401/Kconfig"
+
+source "board/amlogic/c4_bz404/Kconfig"
+
+source "board/amlogic/c4_bz409/Kconfig"
+
+source "board/amlogic/a9_skt/Kconfig"
+
+source "board/amlogic/a9_by401/Kconfig"
+
+source "board/amlogic/a9_by408/Kconfig"
+
+source "board/amlogic/a9_by409/Kconfig"
+
+source "board/amlogic/a9_by401_venus/Kconfig"
+
+source "board/amlogic/c5_skt/Kconfig"
+
+source "board/amlogic/c5_cb400/Kconfig"
+
+source "board/amlogic/c5_cb401/Kconfig"
+
+source "board/amlogic/c5_cb409/Kconfig"
+
+source "board/amlogic/c5_cb410/Kconfig"

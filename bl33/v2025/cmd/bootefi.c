@@ -10,6 +10,7 @@
 #include <command.h>
 #include <efi.h>
 #include <efi_loader.h>
+#include <fdt_support.h>
 #include <exports.h>
 #include <log.h>
 #include <malloc.h>
@@ -148,6 +149,28 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 	} else {
 		fdt = EFI_FDT_USE_INTERNAL;
 	}
+
+#ifdef CONFIG_AMLOGIC_MODIFY
+	/* Apply the same platform memory setup used by the bootm/booti path. */
+	if (fdt != EFI_FDT_USE_INTERNAL && !fdt_check_header(fdt)) {
+		ulong fdt_addr = map_to_sysmem(fdt);
+
+		if (CONFIG_IS_ENABLED(CMD_FDT))
+			set_working_fdt_addr(fdt_addr);
+
+#ifdef CONFIG_CMD_RSVMEM
+		ret = run_command("rsvmem check", 0);
+		if (ret) {
+			log_err("rsvmem check failed\n");
+			return CMD_RET_FAILURE;
+		}
+#endif
+
+#ifdef CONFIG_CMD_MEMTAG
+		run_command("memtag check", 0);
+#endif
+	}
+#endif
 
 	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR) &&
 	    !strcmp(argv[1], "bootmgr")) {

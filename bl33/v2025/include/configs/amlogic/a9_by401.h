@@ -168,7 +168,8 @@
 		"run init_display;"\
 		"run upgrade_key;" \
 		"bcb uboot-command;"\
-		"run switch_bootmode;"
+		"run switch_bootmode;"\
+		"usb start;"
 #else
 #define CONFIG_PREBOOT  "echo preboot"
 #define CONFIG_ENV_IS_NOWHERE  1

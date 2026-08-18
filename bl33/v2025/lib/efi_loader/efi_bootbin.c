@@ -14,6 +14,10 @@
 #include <log.h>
 #include <malloc.h>
 
+#ifdef CONFIG_AMLOGIC_MODIFY
+#include <linux/sizes.h>
+#endif
+
 static struct efi_device_path *bootefi_image_path;
 static struct efi_device_path *bootefi_device_path;
 static void *image_addr;
@@ -128,6 +132,11 @@ efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size)
 	efi_status_t ret;
 	u16 *load_options;
 
+#if defined(CONFIG_AMLOGIC_MODIFY) && defined(CONFIG_ARM64)
+	struct efi_loaded_image_obj *addr = NULL;
+	uint64_t efi_addr = 0, efi_size = 0;
+#endif
+
 	if (!bootefi_device_path || !bootefi_image_path) {
 		log_debug("Not loaded from disk\n");
 		/*
@@ -168,6 +177,21 @@ efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size)
 	ret = efi_env_set_load_options(handle, "bootargs", &load_options);
 	if (ret != EFI_SUCCESS)
 		goto out;
+
+#if defined(CONFIG_AMLOGIC_MODIFY) && defined(CONFIG_ARM64)
+	addr = (struct efi_loaded_image_obj *)handle;
+
+	efi_addr = (uint64_t)addr->entry;
+	efi_size = ALIGN(source_size, SZ_2M);
+
+	if (efi_addr & ~SZ_2M) {
+		efi_addr = ALIGN(efi_addr, SZ_2M) - SZ_2M;
+		efi_size += SZ_2M;
+	}
+
+	extern void mmu_set_efi_attr(uint64_t addr, uint64_t size);
+	mmu_set_efi_attr(efi_addr, efi_size);
+#endif
 
 	ret = do_bootefi_exec(handle, load_options);
 
